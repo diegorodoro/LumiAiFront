@@ -1,9 +1,10 @@
-import { Box, VStack, Text, IconButton, Flex } from '@chakra-ui/react'
+import { Box, VStack, Text, Flex } from '@chakra-ui/react'
 import { useState } from 'react'
 import { MdMenu } from "react-icons/md";
+import { FaUserCircle } from "react-icons/fa";
 
 const Sidebar = () => {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
     // Función para alternar el estado del sidebar
     const toggleSidebar = () => {
@@ -17,49 +18,53 @@ const Sidebar = () => {
     const buttonPosition = "15px";
 
     return (
-        <Box
+        <Flex
+            width={isSidebarOpen ? "250px" : 'max-content'}
+            height="100vh"
             bg="gray.800"
             color="white"
-            w={isSidebarOpen ? '240px' : closedWidth}
-            minH="100vh"
-            transition="width 0.1s ease"
-            position="relative"
+            transition="width 0.3s ease-in-out"
         >
-            {/* Botón de abrir/cerrar el sidebar */}
-            <Flex justify='flex-start' p={3}>
-                <IconButton
-                    onClick={toggleSidebar}
-                    border={'none'}
-                    bg="transparent"
-                    color="white"
-                    aria-label="Toggle Sidebar"
-                    position="absolute"
-                    left={buttonPosition}
-                    top="10px"
+            <VStack
+                gap={4}
+                align="center"
+                p={4}
+                width="100%"
+                display={"flex"}
+                justifyContent={"space-between"}
+            >
+                <Box
+                    alignItems={'center'}
+                    justifyContent={'center'}
                 >
-                    {isSidebarOpen ? <MdMenu style={{ transform: 'rotate(90deg)' }} /> : <MdMenu />}
-                </IconButton>
-            </Flex>
+                    {isSidebarOpen ?
+                        <MdMenu
+                            size={24}
+                            color="white"
+                            onClick={toggleSidebar}
+                            style={{ transform: 'rotate(90deg)' }}
+                        />
+                        :
+                        <MdMenu
+                            size={24}
+                            color="white"
+                            onClick={toggleSidebar}
+                        />
+                    }
+                </Box>
+                <VStack
+                    display={'flex'}
 
-            {/* Espacio para mantener el layout correcto cuando el botón está posicionado absolutamente */}
-            <Box h="50px" />
-
-            {/* Título del sidebar */}
-            {isSidebarOpen && (
-                <Text fontSize="2xl" mb={4} pl={10}>
-                    Mi Menú
-                </Text>
-            )}
-
-            {/* Contenido del Sidebar */}
-            {isSidebarOpen && (
-                <VStack align="start" p={3}>
-                    <Text>Inicio</Text>
-                    <Text>Acerca de</Text>
+                >
+                    <Box>
+                        <FaUserCircle
+                            size={30}
+                        />
+                    </Box>
                 </VStack>
-            )}
-        </Box>
+            </VStack>
+        </Flex>
     )
 }
 
-export default Sidebar
+export default Sidebar;
