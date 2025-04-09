@@ -1,16 +1,20 @@
-// src/App.tsx
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import MainLayout from './layouts/MainLayout' // Eliminar la extensión .tsx
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import MainLayout from './layouts/MainLayout';
+import LoginPage from './layouts/loginLayout'; 
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<h1>a</h1>} />
+        
+        {/* Ruta para la pantalla principal */}
         <Route path="/" element={<MainLayout />} />
+
+        {/* Ruta para el login */}
+        <Route path="/login" element={<LoginPage />} />
       </Routes>
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;
