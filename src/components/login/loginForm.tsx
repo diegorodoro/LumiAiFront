@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import './loginForm.css';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../../firebase'; 
 
-// Definimos los tipos de datos que enviamos, en este caso ambos son string
 interface LoginData {
   email: string;
   password: string;
-  rememberMe: boolean; //Este tambien lo puse pero puede ser opcional.
+  rememberMe: boolean;
 }
 
 interface LoginFormProps {
@@ -13,7 +14,6 @@ interface LoginFormProps {
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
-  // Tipamos los estados
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [rememberMe, setRememberMe] = useState<boolean>(false);
@@ -31,15 +31,31 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
     onLogin({ email, password, rememberMe });
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      // Aquí puedes hacer lo que quieras con el usuario
+      console.log("Usuario de Google:", user);
+
+      // Puedes enviar solo el correo si quieres
+      onLogin({ email: user.email || '', password: '', rememberMe: true });
+    } catch (err) {
+      console.error("Error al iniciar sesión con Google:", err);
+      setError("Error al iniciar sesión con Google");
+    }
+  };
+
   return (
     <div className="login-form-container">
       <div className="login-header">
         <h1>Bienvenido</h1>
         <p>Inicia sesión para continuar</p>
       </div>
-      
+
       {error && <div className="error-message">{error}</div>}
-      
+
       <form onSubmit={handleSubmit} className="login-form">
         <div className="form-group">
           <label htmlFor="email">Correo electrónico</label>
@@ -51,7 +67,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
             placeholder="tu@email.com"
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="password">Contraseña</label>
           <input
@@ -62,7 +78,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
             placeholder="Ingresa tu contraseña"
           />
         </div>
-        
+
         <div className="form-options">
           <div className="remember-me">
             <input
@@ -75,9 +91,19 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
           </div>
           <a href="#" className="forgot-password">¿Olvidaste tu contraseña?</a>
         </div>
-        
+
         <button type="submit" className="login-button">Iniciar Sesión</button>
-        
+
+        <div className="google-login">
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            className="google-button"
+          >
+            Iniciar sesión con Google
+          </button>
+        </div>
+
         <div className="register-option">
           ¿No tienes una cuenta? <a href="#">Regístrate</a>
         </div>

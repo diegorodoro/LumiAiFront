@@ -120,3 +120,21 @@
     font-size: 0.9rem;
     margin-bottom: 1rem;
   }
+
+  .google-button {
+    margin-top: 1rem;
+    background-color: #4285F4;
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s;
+  }
+  
+  .google-button:hover {
+    background-color: #357ae8;
+  }
+  
