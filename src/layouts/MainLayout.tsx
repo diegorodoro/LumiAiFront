@@ -1,14 +1,15 @@
 // src/layouts/MainLayout.tsx
-import { Box, Flex } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import Sidebar from '../components/SideBar'
+import ChatBot from '../components/ChatBot'
 
 const MainLayout = () => {
     return (
-        <Flex>
+        <Flex
+            flex-direction={"row"}
+        >
             <Sidebar />
-            <Box flex="1" p={6}>
-                a
-            </Box>
+            <ChatBot />
         </Flex>
     )
 }
