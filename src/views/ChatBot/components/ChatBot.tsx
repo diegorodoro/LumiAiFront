@@ -62,7 +62,7 @@ const ChatBot: React.FC = () => {
         >
             <Box pt={"20px"} mb={4}>
                 <Text
-                    fontSize={["30px", "50px", "50px"]} // Responsive font size
+                    fontSize={["30px", "30px", "30px"]} // Responsive font size
                     fontWeight={"bold"}
                     color={"white"}
                     textAlign={"center"}
