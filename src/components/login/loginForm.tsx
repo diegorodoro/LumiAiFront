@@ -36,10 +36,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
-      // Aquí puedes hacer lo que quieras con el usuario
       console.log("Usuario de Google:", user);
 
-      // Puedes enviar solo el correo si quieres
       onLogin({ email: user.email || '', password: '', rememberMe: true });
     } catch (err) {
       console.error("Error al iniciar sesión con Google:", err);
