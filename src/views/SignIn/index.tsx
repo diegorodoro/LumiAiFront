@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import './loginForms.css';
+import './components/loginForms.css';
 import { signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider } from '../../../firebase';
+import { auth, googleProvider } from '../../firebase';
 
 interface LoginData {
   email: string;
@@ -22,12 +22,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     if (!email || !password) {
       setError('Campos incompletos');
       return;
     }
-    
+
     onLogin({ email, password, rememberMe });
   };
 
