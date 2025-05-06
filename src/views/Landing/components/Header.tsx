@@ -121,7 +121,7 @@ const Header: React.FC = () => {
                 <HStack spacing={4} ml="auto">
                     <Button
                         as={RouterLink}
-                        to="/login"
+                        to="/sign-in"
                         variant="unstyled"
                         color="white"
                         border="1px solid rgba(255, 255, 255, 0.2)"

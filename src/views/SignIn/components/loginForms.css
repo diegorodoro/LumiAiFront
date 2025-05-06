@@ -22,7 +22,8 @@
 }
 
 body {
-  padding: 2rem; /* separa el contenido del borde */
+  padding: 2rem;
+  /* separa el contenido del borde */
   font-family: 'Poppins', sans-serif;
   color: var(--text-color);
   background-color: var(--background-color);
@@ -48,21 +49,53 @@ body::before {
   animation: gradientBG 15s ease infinite;
 }
 
+.signin-body {
+  padding: 2rem;
+  /* separa el contenido del borde */
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animación de fondo */
+.signin-body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(125deg, #e0f2fe, #dbeafe, #ede9fe, #fae8ff);
+  background-size: 400% 400%;
+  z-index: -1;
+  animation: gradientBG 15s ease infinite;
+}
+
 @keyframes gradientBG {
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
 }
 
 .login-form-container {
-  max-height: 90vh; /* no más del 90% de la altura de la ventana */
-  overflow-y: auto; /* para que no se rompa en pantallas pequeñas */
+  max-height: 90vh;
+  /* no más del 90% de la altura de la ventana */
+  overflow-y: auto;
+  /* para que no se rompa en pantallas pequeñas */
   width: 100%;
   max-width: 450px;
   padding: 2.5rem;
@@ -276,6 +309,7 @@ body::before {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -292,11 +326,11 @@ body::before {
     max-width: 90%;
     padding: 1.5rem;
   }
-  
+
   .login-header h1 {
     font-size: 1.75rem;
   }
-  
+
   .form-options {
     flex-direction: column;
     gap: 0.75rem;

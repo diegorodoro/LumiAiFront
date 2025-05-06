@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './components/loginForms.css';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebase';
@@ -19,6 +19,16 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
   const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
+  useEffect(() => {
+    // Agregar clase al body al montar el componente
+    document.body.classList.add('signin-body');
+
+    // Limpiar la clase al desmontar el componente
+    return () => {
+      document.body.classList.remove('signin-body');
+    };
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -36,12 +46,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
-      console.log("Usuario de Google:", user);
+      console.log('Usuario de Google:', user);
 
       onLogin({ email: user.email || '', password: '', rememberMe: true });
     } catch (err) {
-      console.error("Error al iniciar sesión con Google:", err);
-      setError("Error al iniciar sesión con Google");
+      console.error('Error al iniciar sesión con Google:', err);
+      setError('Error al iniciar sesión con Google');
     }
   };
 
@@ -87,10 +97,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
             />
             <label htmlFor="rememberMe">Recordarme</label>
           </div>
-          <a href="#" className="forgot-password">¿Olvidaste tu contraseña?</a>
+          <a href="#" className="forgot-password">
+            ¿Olvidaste tu contraseña?
+          </a>
         </div>
 
-        <button type="submit" className="login-button">Iniciar Sesión</button>
+        <button type="submit" className="login-button">
+          Iniciar Sesión
+        </button>
 
         <div className="google-login">
           <button
