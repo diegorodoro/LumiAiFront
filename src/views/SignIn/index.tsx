@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth, googleProvider } from '../../firebase';
+import { auth, googleProvider } from '../../firebaseConfig';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { Box, Button, FormControl, FormLabel, Input, VStack, Heading, Flex, Image } from '@chakra-ui/react';
 
