@@ -77,7 +77,7 @@ const Header: React.FC = () => {
                     bgColor="rgba(0, 0, 0, 0.5)"
                     borderRadius="full"
                     px={6}
-                    py={3}
+                    py={2}
                     position="absolute"
                     left="50%"
                     transform="translateX(-50%)"

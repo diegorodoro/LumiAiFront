@@ -1,127 +1,118 @@
-import { useState, useEffect } from 'react';
-import './components/loginForms.css';
-import { signInWithPopup } from 'firebase/auth';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { auth, googleProvider } from '../../firebase';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { Box, Button, FormControl, FormLabel, Input, VStack, Heading, Flex, Image } from '@chakra-ui/react';
 
-interface LoginData {
-  email: string;
-  password: string;
-  rememberMe: boolean;
-}
+const SignIn = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false);
+  const navigate = useNavigate();
 
-interface LoginFormProps {
-  onLogin: (loginData: LoginData) => void;
-}
-
-const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [rememberMe, setRememberMe] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
-
-  useEffect(() => {
-    // Agregar clase al body al montar el componente
-    document.body.classList.add('signin-body');
-
-    // Limpiar la clase al desmontar el componente
-    return () => {
-      document.body.classList.remove('signin-body');
-    };
-  }, []);
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    try {
+      let userCredential;
 
-    if (!email || !password) {
-      setError('Campos incompletos');
-      return;
+      if (isRegistering) {
+        userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        userCredential = await signInWithEmailAndPassword(auth, email, password);
+      }
+
+      const token = await userCredential.user.getIdToken();
+
+      const response = await fetch('http://localhost:5000/protected', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      console.log(`${isRegistering ? 'Registro' : 'Login'} exitoso, respuesta del backend:`, data);
+
+      if (isRegistering) {
+        navigate('/preferencias');
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(`Error al ${isRegistering ? 'registrar' : 'iniciar sesión'}:`, error.message);
+      } else {
+        console.error(`Error al ${isRegistering ? 'registrar' : 'iniciar sesión'}:`, error);
+      }
     }
-
-    onLogin({ email, password, rememberMe });
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-
-      console.log('Usuario de Google:', user);
-
-      onLogin({ email: user.email || '', password: '', rememberMe: true });
-    } catch (err) {
-      console.error('Error al iniciar sesión con Google:', err);
-      setError('Error al iniciar sesión con Google');
+      console.log('Google User:', result.user);
+    } catch (error) {
+      console.error('Google Sign-In Error:', error);
     }
   };
 
   return (
-    <div className="login-form-container">
-      <div className="login-header">
-        <h1>Bienvenido</h1>
-        <p>Inicia sesión para continuar</p>
-      </div>
+    <Flex align="center" justify="center" minH="100vh" bg="gray.50" p={4}>
+      <Box
+        bg="white"
+        borderRadius="md"
+        boxShadow="lg"
+        w="full"
+        maxW="sm"
+        p={8}
+      >
+        <VStack as="form" spacing={4} onSubmit={handleAuth}>
+          <Heading as="h1" size="lg" textAlign="center">
+            {isRegistering ? 'Registrarse' : 'Iniciar Sesión'}
+          </Heading>
 
-      {error && <div className="error-message">{error}</div>}
-
-      <form onSubmit={handleSubmit} className="login-form">
-        <div className="form-group">
-          <label htmlFor="email">Correo electrónico</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="tu@email.com"
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="password">Contraseña</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Ingresa tu contraseña"
-          />
-        </div>
-
-        <div className="form-options">
-          <div className="remember-me">
-            <input
-              type="checkbox"
-              id="rememberMe"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
+          <FormControl id="email" isRequired>
+            <FormLabel>Correo Electrónico</FormLabel>
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="tu@email.com"
             />
-            <label htmlFor="rememberMe">Recordarme</label>
-          </div>
-          <a href="#" className="forgot-password">
-            ¿Olvidaste tu contraseña?
-          </a>
-        </div>
+          </FormControl>
 
-        <button type="submit" className="login-button">
-          Iniciar Sesión
-        </button>
+          <FormControl id="password" isRequired>
+            <FormLabel>Contraseña</FormLabel>
+            <Input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Ingresa tu contraseña"
+            />
+          </FormControl>
 
-        <div className="google-login">
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            className="google-button"
+          <Button type="submit" colorScheme="blue" w="full">
+            {isRegistering ? 'Registrarse' : 'Iniciar Sesión'}
+          </Button>
+
+          <Button
+            onClick={handleGoogleSignIn}
+            colorScheme="red"
+            w="full"
+            leftIcon={<Image src="/path-to-google-logo.png" alt="Google Logo" boxSize="20px" />}
           >
             Iniciar sesión con Google
-          </button>
-        </div>
+          </Button>
 
-        <div className="register-option">
-          ¿No tienes una cuenta? <a href="#">Regístrate</a>
-        </div>
-      </form>
-    </div>
+          <Button
+            onClick={() => setIsRegistering(!isRegistering)}
+            variant="link"
+            colorScheme="blue"
+          >
+            {isRegistering ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate'}
+          </Button>
+        </VStack>
+      </Box>
+    </Flex>
   );
 };
 
-export default LoginForm;
+export default SignIn;
