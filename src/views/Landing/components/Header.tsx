@@ -139,7 +139,7 @@ const Header: React.FC = () => {
                     </Button>
                     <Button
                         as={RouterLink}
-                        to="/signup"
+                        to="/sign-up"
                         variant="unstyled"
                         bg="rgba(0, 0, 0, 0.5)"
                         color="white"
