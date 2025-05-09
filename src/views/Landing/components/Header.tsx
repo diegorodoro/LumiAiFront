@@ -110,9 +110,9 @@ const Header: React.FC = () => {
                                 textShadow: '0 0 8px white, 0 0 16px white, 0 0 24px white'
                             }}
                         >
-                            {section === 'home' && 'Home'}
-                            {section === 'about-us' && 'About Us'}
-                            {section === 'how-does-it-work' && 'How does it work?'}
+                            {section === 'home' && 'Inicio'}
+                            {section === 'about-us' && 'Sobre Nosotros'}
+                            {section === 'how-does-it-work' && '¿Cómo Funciona?'}
                         </Text>
                     ))}
                 </HStack>
@@ -135,7 +135,7 @@ const Header: React.FC = () => {
                             textShadow: "0 0 5px rgba(255, 255, 255, 0.5)"
                         }}
                     >
-                        Sign In
+                        Iniciar Sesión
                     </Button>
                     <Button
                         as={RouterLink}
@@ -167,7 +167,7 @@ const Header: React.FC = () => {
                             textShadow: "0 0 5px rgba(255, 255, 255, 0.5)"
                         }}
                     >
-                        Get Started
+                        Comenzar
                     </Button>
                 </HStack>
             </Flex>

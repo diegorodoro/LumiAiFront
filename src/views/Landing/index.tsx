@@ -6,7 +6,7 @@ import ShaderCanvas from './components/backgroundEffect/ShaderCanvas';
 const Landing: React.FC = () => {
     return (
         <LandingLayout>
-            <VStack align="stretch">
+            <VStack align="stretch" gap={0}>
                 {/* Home Section */}
                 <Box id="home" h={'100vh'} position="relative">
                     <ShaderCanvas width={'100%'} height={'100%'} />
@@ -24,14 +24,14 @@ const Landing: React.FC = () => {
                             color="white"
                             fontFamily={'Poppins, sans-serif'}
                         >
-                            Welcome to LumiAI
+                            Bienvenido a LumiAI
                         </Heading>
                         <Box>
                             <Text fontSize="lg" color="whiteAlpha.800">
-                                Your AI-powered assistant for smarter conversations.
+                                Tu asistente impulsado por IA para conversaciones más inteligentes.
                             </Text>
                             <Text fontSize="lg" color="whiteAlpha.800">
-                                Explore our features and see how we can help you.
+                                Explora nuestras funciones y descubre cómo podemos ayudarte.
                             </Text>
                         </Box>
                     </VStack>
@@ -43,12 +43,13 @@ const Landing: React.FC = () => {
                     h={'100vh'}
                     bg="gray.100"
                     py={24}
+                    mt={0}
                 >
                     <Heading as="h2" size="xl" textAlign="center">
-                        About Us
+                        Sobre Nosotros
                     </Heading>
                     <Text textAlign="center" mt={4}>
-                        Learn more about our mission and vision.
+                        Aprende más sobre nuestra misión y visión.
                     </Text>
                 </Box>
 
@@ -57,12 +58,13 @@ const Landing: React.FC = () => {
                     id="how-does-it-work"
                     h={'100vh'}
                     py={24}
+                    bg={'gray.900'}
                 >
-                    <Heading as="h2" size="xl" textAlign="center">
-                        How Does It Work?
+                    <Heading as="h2" size="xl" textAlign="center" color="white">
+                        ¿Cómo Funciona?
                     </Heading>
-                    <Text textAlign="center" mt={4}>
-                        Understand how LumiAI can help you.
+                    <Text textAlign="center" mt={4} color="whiteAlpha.800">
+                        Entiende cómo LumiAI puede ayudarte.
                     </Text>
                 </Box>
             </VStack>
