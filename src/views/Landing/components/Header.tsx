@@ -123,16 +123,31 @@ const Header: React.FC = () => {
                         as={RouterLink}
                         to="/sign-in"
                         variant="unstyled"
+                        bg="rgba(0, 0, 0, 0.5)"
                         color="white"
                         border="1px solid rgba(255, 255, 255, 0.2)"
-                        boxShadow="0 4px 10px rgba(0, 0, 0, 0.1)"
+                        backdropFilter="blur(8px)"
+                        boxShadow="0 4px 20px rgba(0, 0, 0, 0.2)"
                         transition="all 0.3s ease"
                         px={5}
                         py={2}
+                        position="relative"
+                        overflow="hidden"
+                        _before={{
+                            content: '""',
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))',
+                            pointerEvents: 'none'
+                        }}
                         _hover={{
                             bg: "rgba(255, 255, 255, 0.25)",
                             boxShadow: "0 4px 15px rgba(255, 255, 255, 0.2)",
-                            textShadow: "0 0 5px rgba(255, 255, 255, 0.5)"
+                            textShadow: "0 0 5px rgba(255, 255, 255, 0.5)",
+                            textColor: "gray"
                         }}
                     >
                         Iniciar Sesión

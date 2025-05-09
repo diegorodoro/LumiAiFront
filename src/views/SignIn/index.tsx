@@ -4,11 +4,15 @@ import { auth } from '../../firebaseConfig';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { Box, Button, Heading, Input, VStack, HStack, Icon } from "@chakra-ui/react";
 import { FcGoogle } from "react-icons/fc";
+import { useAuth } from "../../contexts/AuthContext";
 
 function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { token, setToken } = useAuth(); // Obtiene el token desde el contexto de autenticación
+
+  console.log("Token actual:", token);
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -23,10 +27,12 @@ function SignIn() {
         },
       });
 
+      console.log("Response completo de la API:", response); // Imprime el objeto Response completo
       const data = await response.json();
       console.log("Inicio de sesión exitoso, respuesta del backend:", data);
 
-      navigate("/dashboard"); // Redirige al usuario después de iniciar sesión
+      navigate("/chatbot"); // Redirige al usuario después de iniciar sesión
+
     } catch (error) {
       if (error instanceof Error) {
         console.error("Error al iniciar sesión:", error.message);
@@ -52,7 +58,7 @@ function SignIn() {
       const data = await response.json();
       console.log("Inicio de sesión con Google exitoso, respuesta del backend:", data);
 
-      navigate("/dashboard"); // Redirige al usuario después de iniciar sesión
+      navigate("/chatbot"); // Redirige al usuario después de iniciar sesión
     } catch (error) {
       if (error instanceof Error) {
         console.error("Error al iniciar sesión con Google:", error.message);
