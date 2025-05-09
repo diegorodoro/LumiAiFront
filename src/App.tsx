@@ -4,6 +4,7 @@ import ChatBot from "./views/ChatBot";
 import Landing from "./views/Landing";
 import SignIn from "./views/SignIn";
 import SignUp from "./views/SignUp";
+import Questionnaire from "./views/questions"; 
 import { AuthProvider } from "./contexts/AuthContext";
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
           <Route path="/chatbot" element={<ChatBot />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/questions" element={<Questionnaire  />} />
         </Routes>
       </Router>
     </AuthProvider>

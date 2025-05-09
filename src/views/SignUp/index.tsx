@@ -67,7 +67,7 @@ const SignUp = () => {
         isClosable: true,
       });
 
-      navigate("/chatbot");
+      navigate("/questions");
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.error("Error al registrar:", errorMsg);
