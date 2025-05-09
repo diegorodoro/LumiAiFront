@@ -58,7 +58,7 @@ function SignIn() {
       const data = await response.json();
       console.log("Inicio de sesión con Google exitoso, respuesta del backend:", data);
 
-      navigate("/chatbot"); // Redirige al usuario después de iniciar sesión
+      navigate("/chatbot");
     } catch (error) {
       if (error instanceof Error) {
         console.error("Error al iniciar sesión con Google:", error.message);
