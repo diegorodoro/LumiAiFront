@@ -8,7 +8,8 @@ import {
   Heading,
   VStack,
   useToast,
-  Divider,
+  Flex,
+  Icon,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../firebaseConfig';
@@ -18,6 +19,8 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from 'firebase/auth';
+import { FcGoogle } from 'react-icons/fc';
+import ShaderCanvas from './component/backgroundEffect/ShaderCanvas';
 
 const SignUp = () => {
   const [name, setName] = useState('');
@@ -118,74 +121,125 @@ const SignUp = () => {
       });
     }
   };
-
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      height="100vh"
-      bg="gray.100"
-    >
-      <Box
-        bg="white"
-        p={8}
-        borderRadius="lg"
-        boxShadow="lg"
-        w="full"
-        maxW="400px"
-      >
-        <Heading mb={6} textAlign="center">Crear cuenta</Heading>
-        <form onSubmit={handleSignUp}>
-          <VStack spacing={4}>
-            <FormControl isRequired>
-              <FormLabel>Nombre completo</FormLabel>
-              <Input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Ingresa tu nombre"
-              />
-            </FormControl>
-            <FormControl isRequired>
-              <FormLabel>Correo electrónico</FormLabel>
-              <Input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Ingresa tu correo"
-              />
-            </FormControl>
-            <FormControl isRequired>
-              <FormLabel>Contraseña</FormLabel>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Ingresa tu contraseña"
-              />
-            </FormControl>
-            <FormControl isRequired>
-              <FormLabel>Confirmar contraseña</FormLabel>
-              <Input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Vuelve a ingresar tu contraseña"
-              />
-            </FormControl>
-            <Button type="submit" colorScheme="teal" width="full">
-              Registrarse
-            </Button>
-          </VStack>
-        </form>
-
-        <Divider my={6} />
-
-        <Button colorScheme="red" width="full" onClick={handleGoogleSignUp}>
-          Registrarse con Google
-        </Button>
+    <Box position="relative" h="100vh" w="100%" overflow="hidden">
+      {/* Background ShaderCanvas */}
+      <Box position="absolute" top="0" left="0" right="0" bottom="0" zIndex="0">
+        <ShaderCanvas />
       </Box>
+
+      {/* Glass effect container */}
+      <Flex
+        justify="center"
+        align="center"
+        h="100%"
+        w="100%"
+        position="relative"
+        zIndex="1"
+      >
+        <Box
+          p={8}
+          borderRadius="xl"
+          bg="rgba(58, 52, 52, 0.56)"
+          backdropFilter="blur(12px)"
+          boxShadow="xl"
+          border="1px solid rgba(255, 255, 255, 0.2)"
+          w="full"
+          maxW="400px"
+        >
+          <Heading mb={6} textAlign="center" color="white">Crear cuenta</Heading>
+          <form onSubmit={handleSignUp}>
+            <VStack spacing={4}>
+              <FormControl isRequired>
+                <FormLabel color="white">Nombre completo</FormLabel>
+                <Input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Ingresa tu nombre"
+                  bg="rgba(255, 255, 255, 0.15)"
+                  color="white"
+                  _placeholder={{ color: "rgba(255, 255, 255, 0.7)" }}
+                  _hover={{ bg: "rgba(255, 255, 255, 0.2)" }}
+                />
+              </FormControl>
+              <FormControl isRequired>
+                <FormLabel color="white">Correo electrónico</FormLabel>
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Ingresa tu correo"
+                  bg="rgba(255, 255, 255, 0.15)"
+                  color="white"
+                  _placeholder={{ color: "rgba(255, 255, 255, 0.7)" }}
+                  _hover={{ bg: "rgba(255, 255, 255, 0.2)" }}
+                />
+              </FormControl>
+              <FormControl isRequired>
+                <FormLabel color="white">Contraseña</FormLabel>
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Ingresa tu contraseña"
+                  bg="rgba(255, 255, 255, 0.15)"
+                  color="white"
+                  _placeholder={{ color: "rgba(255, 255, 255, 0.7)" }}
+                  _hover={{ bg: "rgba(255, 255, 255, 0.2)" }}
+                />
+              </FormControl>
+              <FormControl isRequired>
+                <FormLabel color="white">Confirmar contraseña</FormLabel>
+                <Input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Vuelve a ingresar tu contraseña"
+                  bg="rgba(255, 255, 255, 0.15)"
+                  color="white"
+                  _placeholder={{ color: "rgba(255, 255, 255, 0.7)" }}
+                  _hover={{ bg: "rgba(255, 255, 255, 0.2)" }}
+                />
+              </FormControl>
+              <Button
+                type="submit"
+                colorScheme="blue"
+                width="full"
+                bg="blue.500"
+                _hover={{ bg: "blue.600" }}
+              >
+                Registrarse
+              </Button>
+            </VStack>
+          </form>
+
+          <Box my={4} borderTop="1px solid rgba(255, 255, 255, 0.2)" pt={4}></Box>
+
+          <Button
+            leftIcon={<Icon as={FcGoogle} boxSize="20px" />}
+            color="black"
+            bg="white"
+            _hover={{ bg: "gray.100" }}
+            width="full"
+            fontSize="sm"
+            onClick={handleGoogleSignUp}
+          >
+            Registrar con Google
+          </Button>
+
+          <Button
+            mt={4}
+            variant="link"
+            color="white"
+            fontWeight="normal"
+            onClick={() => navigate("/sign-in")}
+            _hover={{ color: "blue.300" }}
+          >
+            ¿Ya tienes cuenta? Inicia sesión aquí
+          </Button>
+        </Box>
+      </Flex>
     </Box>
   );
 };

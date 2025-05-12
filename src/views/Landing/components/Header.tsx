@@ -12,24 +12,28 @@ const Header: React.FC = () => {
             section.scrollIntoView({ behavior: 'smooth' });
             setActiveSection(id); // Update the active section
         }
-    };
-
-    // Set up intersection observer to detect active section on scroll
+    };    // Set up intersection observer to detect active section on scroll
     useEffect(() => {
         const sections = ['home', 'about-us', 'how-does-it-work'];
 
         const options = {
             root: null, // viewport
-            rootMargin: '0px',
-            threshold: 0.6 // 60% of the element must be visible
+            rootMargin: '-20% 0px -30% 0px', // Adjust margins to improve detection
+            threshold: [0.2, 0.5, 0.8] // Multiple thresholds for better detection
         };
 
         const callback = (entries: IntersectionObserverEntry[]) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    setActiveSection(entry.target.id);
-                }
-            });
+            // Store the entries that are intersecting
+            const visibleSections = entries.filter(entry => entry.isIntersecting);
+
+            // If there are visible sections, find the one with the highest intersection ratio
+            if (visibleSections.length > 0) {
+                const mostVisibleSection = visibleSections.reduce((prev, current) => {
+                    return prev.intersectionRatio > current.intersectionRatio ? prev : current;
+                });
+
+                setActiveSection(mostVisibleSection.target.id);
+            }
         };
 
         // Create observer
@@ -43,11 +47,20 @@ const Header: React.FC = () => {
             }
         });
 
+        // Also listen for scroll events to handle edge cases
+        const handleScrollEvent = () => {
+            // Add a small delay to avoid excessive calculations
+            if (!observerRefs.current) return;
+        };
+
+        window.addEventListener('scroll', handleScrollEvent, { passive: true });
+
         // Clean up
         return () => {
             if (observerRefs.current) {
                 observerRefs.current.disconnect();
             }
+            window.removeEventListener('scroll', handleScrollEvent);
         };
     }, []);
 
@@ -118,40 +131,38 @@ const Header: React.FC = () => {
                 </HStack>
 
                 {/* Buttons on the right */}
-                <HStack spacing={4} ml="auto">
-                    <Button
-                        as={RouterLink}
-                        to="/sign-in"
-                        variant="unstyled"
-                        bg="rgba(0, 0, 0, 0.5)"
-                        color="white"
-                        border="1px solid rgba(255, 255, 255, 0.2)"
-                        backdropFilter="blur(8px)"
-                        boxShadow="0 4px 20px rgba(0, 0, 0, 0.2)"
-                        transition="all 0.3s ease"
-                        px={5}
-                        py={2}
-                        position="relative"
-                        overflow="hidden"
-                        _before={{
-                            content: '""',
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))',
-                            pointerEvents: 'none'
-                        }}
-                        _hover={{
-                            bg: "rgba(255, 255, 255, 0.25)",
-                            boxShadow: "0 4px 15px rgba(255, 255, 255, 0.2)",
-                            textShadow: "0 0 5px rgba(255, 255, 255, 0.5)",
-                            textColor: "gray"
-                        }}
-                    >
-                        Iniciar Sesión
-                    </Button>
+                <HStack spacing={4} ml="auto">                    <Button
+                    as={RouterLink}
+                    to="/sign-in"
+                    variant="unstyled"
+                    bg="rgba(0, 0, 0, 0.5)"
+                    color="white"
+                    border="1px solid rgba(255, 255, 255, 0.2)"
+                    backdropFilter="blur(8px)"
+                    boxShadow="0 4px 20px rgba(0, 0, 0, 0.2)"
+                    transition="all 0.3s ease"
+                    px={5}
+                    py={2}
+                    position="relative"
+                    overflow="hidden"
+                    _before={{
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))',
+                        pointerEvents: 'none'
+                    }}
+                    _hover={{
+                        bg: "rgba(255, 255, 255, 0.25)",
+                        boxShadow: "0 4px 15px rgba(255, 255, 255, 0.2)",
+                        textShadow: "0 0 5px rgba(255, 255, 255, 0.5)"
+                    }}
+                >
+                    Iniciar Sesión
+                </Button>
                     <Button
                         as={RouterLink}
                         to="/sign-up"

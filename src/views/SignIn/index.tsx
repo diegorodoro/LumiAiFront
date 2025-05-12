@@ -2,17 +2,15 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from '../../firebaseConfig';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { Box, Button, Heading, Input, VStack, HStack, Icon } from "@chakra-ui/react";
+import { Box, Button, Heading, Input, VStack, HStack, Icon, Flex } from "@chakra-ui/react";
 import { FcGoogle } from "react-icons/fc";
-import { useAuth } from "../../contexts/AuthContext";
+import ShaderCanvas from "./component/backgroundEffect/ShaderCanvas";
 
 function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const { token, setToken } = useAuth(); // Obtiene el token desde el contexto de autenticación
 
-  console.log("Token actual:", token);
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -67,52 +65,94 @@ function SignIn() {
       }
     }
   };
-
   return (
-    <Box maxW="md" mx="auto" mt={10} p={6} borderWidth={1} borderRadius="lg" boxShadow="lg">
-      <Heading as="h2" size="lg" mb={6} textAlign="center">
-        Iniciar sesión
-      </Heading>
-      <form onSubmit={handleSignIn}>
-        <VStack spacing={4}>
-          <Input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Correo"
-            variant="filled"
-          />
-          <Input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Contraseña"
-            variant="filled"
-          />
-          <Button type="submit" colorScheme="blue" width="full">
-            Iniciar sesión
-          </Button>
-        </VStack>
-      </form>
-      <Button
-        mt={4}
-        variant="link"
-        colorScheme="blue"
-        onClick={() => navigate("/sign-up")}
+    <Box position="relative" h="100vh" w="100%" overflow="hidden">
+      {/* Background ShaderCanvas */}
+      <Box position="absolute" top="0" left="0" right="0" bottom="0" zIndex="0">
+        <ShaderCanvas />
+      </Box>
+
+      {/* Glass effect container */}
+      <Flex
+        justify="center"
+        align="center"
+        h="100%"
+        w="100%"
+        position="relative"
+        zIndex="1"
       >
-        ¿No tienes cuenta? Regístrate aquí
-      </Button>
-      <HStack mt={4} spacing={4} justify="center">
-        <Button
-          onClick={handleGoogleSignIn}
-          leftIcon={<Icon as={FcGoogle} />}
-          colorScheme="gray"
-          variant="outline"
-          width="full"
+        <Box
+          maxW="md"
+          p={8}
+          borderRadius="xl"
+          bg="rgba(58, 52, 52, 0.56)"
+          backdropFilter="blur(12px)"
+          boxShadow="xl"
+          border="1px solid rgba(255, 255, 255, 0.2)"
         >
-          Iniciar sesión con Google
-        </Button>
-      </HStack>
+          <Heading as="h2" size="lg" mb={6} textAlign="center" color="white">
+            Iniciar sesión
+          </Heading>
+          <form onSubmit={handleSignIn}>
+            <VStack spacing={4}>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Correo"
+                variant="filled"
+                bg="rgba(255, 255, 255, 0.15)"
+                color="white"
+                _placeholder={{ color: "rgba(255, 255, 255, 0.7)" }}
+                _hover={{ bg: "rgba(255, 255, 255, 0.2)" }}
+              />
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Contraseña"
+                variant="filled"
+                bg="rgba(255, 255, 255, 0.15)"
+                color="white"
+                _placeholder={{ color: "rgba(255, 255, 255, 0.7)" }}
+                _hover={{ bg: "rgba(255, 255, 255, 0.2)" }}
+              />
+              <Button
+                type="submit"
+                colorScheme="blue"
+                width="full"
+                bg="blue.500"
+                _hover={{ bg: "blue.600" }}
+              >
+                Iniciar sesión
+              </Button>
+            </VStack>
+          </form>
+          <Button
+            mt={4}
+            variant="link"
+            color="white"
+            fontWeight="normal"
+            onClick={() => navigate("/sign-up")}
+            _hover={{ color: "blue.300" }}
+          >
+            ¿No tienes cuenta? Regístrate aquí
+          </Button>
+          <HStack mt={4} spacing={4} justify="center">
+            <Button
+              onClick={handleGoogleSignIn}
+              leftIcon={<Icon as={FcGoogle} boxSize="20px" />}
+              color="black"
+              bg="white"
+              _hover={{ bg: "gray.100" }}
+              width="full"
+              fontSize="sm"
+            >
+              Iniciar sesión con Google
+            </Button>
+          </HStack>
+        </Box>
+      </Flex>
     </Box>
   );
 }
