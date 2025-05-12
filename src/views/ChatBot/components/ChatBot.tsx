@@ -6,8 +6,8 @@ import {
     Textarea,
     VStack,
 } from '@chakra-ui/react';
-
 import { IoMdSend } from "react-icons/io";
+import { getAuth } from "firebase/auth"; // Importación de Firebase Auth
 
 import AudioVisualizerCircle from './AudioVisualizerCircle';
 
@@ -18,32 +18,49 @@ interface Message {
 
 const ChatBot: React.FC = () => {
     const [msg, setMsg] = useState('');
-    const [messages, setMessages] = useState<Message[]>([]); // Updated to store message type
+    const [messages, setMessages] = useState<Message[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // Auto scroll to bottom when messages change
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    const handleSendMessage = () => {
+    const handleSendMessage = async () => {
         if (msg.trim() !== '') {
-            // Add user message
             setMessages([...messages, { text: msg, isUser: true }]);
+     
+            // Obtener el token del usuario autenticado
+            const auth = getAuth();
+            const user = auth.currentUser;
 
-            // Simulate bot response (you would replace this with actual API call)
-            setTimeout(() => {
-                setMessages(prev => [...prev, {
-                    text: `Response to: ${msg}`,
-                    isUser: false
-                }]);
-            }, 1000);
-
-            setMsg(''); // Clear the input field
+            if (user) {
+                const idToken = await user.getIdToken(); // Obtener el token
+     
+                fetch('https://lumiapi-luzj.onrender.com/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${idToken}`, // Incluir el token en el encabezado
+                    },
+                    body: JSON.stringify({ mensaje: msg }),
+                    credentials: 'include'  // Importante para CORS
+                })
+                .then(res => res.json())
+                .then(data => {
+                    setMessages(prev => [...prev, { text: data.respuesta, isUser: false }]);
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    setMessages(prev => [...prev, { text: "Error al obtener la respuesta del bot.", isUser: false }]);
+                });
+     
+                setMsg('');
+            } else {
+                console.log("No estás autenticado.");
+            }
         }
     };
 
-    // Handle Enter key press
     const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -58,11 +75,11 @@ const ChatBot: React.FC = () => {
             justifyContent={"center"}
             bgColor={"gray.500"}
             flexDirection={"column"}
-            overflow="hidden" // Prevent any overflow on the main container
+            overflow="hidden"
         >
             <Box pt={"20px"} mb={4}>
                 <Text
-                    fontSize={["30px", "30px", "30px"]} // Responsive font size
+                    fontSize={["30px", "30px", "30px"]}
                     fontWeight={"bold"}
                     color={"white"}
                     textAlign={"center"}
@@ -71,16 +88,10 @@ const ChatBot: React.FC = () => {
                 </Text>
             </Box>
 
-            <Box
-                display={"flex"}
-                justifyContent={"center"}
-                alignItems={"center"}
-                w={"100%"}
-            >
+            <Box display={"flex"} justifyContent={"center"} alignItems={"center"} w={"100%"}>
                 <AudioVisualizerCircle prompt={messages.length > 0 ? messages[messages.length - 1].text : ''} />
             </Box>
 
-            {/* Messages container */}
             <Box
                 flex="1"
                 width="100%"
@@ -88,7 +99,7 @@ const ChatBot: React.FC = () => {
                 mx="auto"
                 mb={4}
                 overflowY="auto"
-                overflowX="hidden" // Prevent horizontal overflow in messages container
+                overflowX="hidden"
                 px={4}
                 bgColor="rgba(255, 255, 255, 0.1)"
                 borderRadius="xl"
@@ -117,8 +128,8 @@ const ChatBot: React.FC = () => {
                                 bgColor={message.isUser ? "blue.500" : "gray.700"}
                                 color="white"
                                 boxShadow="md"
-                                wordBreak="break-word" // Break long words if needed
-                                overflowWrap="break-word" // Ensure words wrap properly
+                                wordBreak="break-word"
+                                overflowWrap="break-word"
                             >
                                 <Text wordBreak="break-word">{message.text}</Text>
                             </Box>
@@ -128,13 +139,7 @@ const ChatBot: React.FC = () => {
                 </VStack>
             </Box>
 
-            <Box
-                justifyContent={"center"}
-                display={"flex"}
-                alignItems={"center"}
-                w={"100%"}
-                p={4}
-            >
+            <Box justifyContent={"center"} display={"flex"} alignItems={"center"} w={"100%"} p={4}>
                 <Flex
                     flexDirection="row"
                     alignItems="center"
@@ -149,7 +154,7 @@ const ChatBot: React.FC = () => {
                         borderColor: 'blue.500',
                         boxShadow: '0 0 0 1px blue.500'
                     }}
-                    bg="rgba(255, 255, 255, 0.7)"  // Changed from "white" to semi-transparent
+                    bg="rgba(255, 255, 255, 0.7)"
                 >
                     <Textarea
                         value={msg}
