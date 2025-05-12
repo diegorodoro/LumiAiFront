@@ -2,7 +2,7 @@ import React from 'react';
 import { VStack, Flex, Box, Heading, Text, Grid, GridItem } from '@chakra-ui/react';
 import LandingLayout from './Layout';
 import ShaderCanvas from './components/backgroundEffect/ShaderCanvas';
-import AnimatedCicles from './components/backgroundEffect/AnimatedCircles';
+import AnimatedCicles from './components/backgroundEffect/ParticleAnitamtion';
 
 const Landing: React.FC = () => {
     const Home = () => {
