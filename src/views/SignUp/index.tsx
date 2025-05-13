@@ -10,6 +10,7 @@ import {
   useToast,
   Flex,
   Icon,
+  Select,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../firebaseConfig';
@@ -27,12 +28,20 @@ const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [pronombre, setPronombre] = useState('');
   const toast = useToast();
   const navigate = useNavigate();
 
+  interface Preferencias {
+    nombre: string;
+    tono: string;
+    intereses: string[];
+    objetivo: string;
+    pronombre: string;
+  }
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    
     if (password !== confirmPassword) {
       toast({
         title: "Las contraseñas no coinciden",
@@ -42,40 +51,66 @@ const SignUp = () => {
       });
       return;
     }
-
+    
     try {
+      // 1. Registrar usuario en Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-
-      await updateProfile(userCredential.user, {
+      const user = userCredential.user;
+      
+      // Actualizar el perfil con el nombre
+      await updateProfile(user, {
         displayName: name,
       });
 
-      const token = await userCredential.user.getIdToken();
+      // 2. Obtener el token de autenticación
+      const token = await user.getIdToken();
 
-      const response = await fetch("https://lumiapi-luzj.onrender.com/protected", {
-        method: "GET",
+      // 3. Enviar preferencias (incluyendo nombre) al backend Flask
+      const preferencias: Preferencias = {
+        nombre: name,
+        tono: "amigable",
+        intereses: ["tecnología", "ciencia"],
+        objetivo: "mejorar mi bienestar emocional",
+        pronombre: pronombre,
+      };
+
+      const response = await fetch("https://lumiapi-luzj.onrender.com/api/preferencias", {
+        method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
+        body: JSON.stringify(preferencias),
       });
 
       const data = await response.json();
-      console.log("Registro exitoso, respuesta del backend:", data);
+      console.log("Respuesta del servidor:", data);
 
-      toast({
-        title: "Registro exitoso",
-        description: "Redirigiendo a preferencias...",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
+      if (response.ok) {
+        toast({
+          title: "Registro exitoso",
+          description: "Redirigiendo a preguntas...",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        navigate("/questions");
+      } else {
+        console.error("Error en preferencias:", data.error);
+        toast({
+          title: "Error al guardar preferencias",
+          description: data.error || "Ocurrió un error inesperado",
+          status: "error",
+          duration: 4000,
+          isClosable: true,
+        });
+      }
 
-      navigate("/questions");
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error("Error al registrar:", errorMsg);
+      console.error("Error en el registro:", errorMsg);
       toast({
-        title: "Error",
+        title: "Error al registrarse",
         description: errorMsg,
         status: "error",
         duration: 4000,
@@ -83,37 +118,67 @@ const SignUp = () => {
       });
     }
   };
-
+  
   const handleGoogleSignUp = async () => {
     try {
+      // 1. Registrar usuario con Google en Firebase Auth
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
-      const token = await result.user.getIdToken();
+      const user = result.user;
+      
+      // 2. Obtener el token de autenticación
+      const token = await user.getIdToken();
+      const fullName = user.displayName || '';
+      
+      // En registro con Google, usamos un pronombre neutro por defecto
+      const defaultPronombre = "neutro";
 
-      const response = await fetch("https://lumiapi-luzj.onrender.com/protected", {
-        method: "GET",
+      // 3. Enviar preferencias al backend
+      const preferencias: Preferencias = {
+        nombre: fullName.trim(),
+        tono: "amigable",
+        intereses: ["tecnología", "ciencia"],
+        objetivo: "mejorar mi bienestar emocional",
+        pronombre: defaultPronombre,
+      };
+
+      const response = await fetch("https://lumiapi-luzj.onrender.com/api/preferencias", {
+        method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
+        body: JSON.stringify(preferencias),
       });
 
       const data = await response.json();
-      console.log("Registro con Google exitoso:", data);
+      console.log("Respuesta del servidor (Google):", data);
 
-      toast({
-        title: "Registro con Google exitoso",
-        description: "Redirigiendo a preferencias...",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
+      if (response.ok) {
+        toast({
+          title: "Registro con Google exitoso",
+          description: "Redirigiendo a preguntas...",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        navigate("/questions");
+      } else {
+        console.error("Error en preferencias Google:", data.error);
+        toast({
+          title: "Error al guardar preferencias",
+          description: data.error || "Ocurrió un error inesperado",
+          status: "error",
+          duration: 4000,
+          isClosable: true,
+        });
+      }
 
-      navigate("/preferencias");
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.error("Error con Google:", errorMsg);
       toast({
-        title: "Error con Google",
+        title: "Error al registrarse con Google",
         description: errorMsg,
         status: "error",
         duration: 4000,
@@ -149,19 +214,46 @@ const SignUp = () => {
         >
           <Heading mb={6} textAlign="center" color="white">Crear cuenta</Heading>
           <form onSubmit={handleSignUp}>
-            <VStack spacing={4}>
+            <VStack spacing={4}>              <FormControl isRequired>
+              <FormLabel color="white">Nombre completo</FormLabel>
+              <Input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Ingresa tu nombre"
+                bg="rgba(255, 255, 255, 0.15)"
+                color="white"
+                _placeholder={{ color: "rgba(255, 255, 255, 0.7)" }}
+                _hover={{ bg: "rgba(255, 255, 255, 0.2)" }}
+              />
+            </FormControl>
               <FormControl isRequired>
-                <FormLabel color="white">Nombre completo</FormLabel>
-                <Input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Ingresa tu nombre"
+                <FormLabel color="white">Pronombre preferido</FormLabel>
+                <Select
+                  value={pronombre}
+                  onChange={(e) => setPronombre(e.target.value)}
+                  placeholder="Selecciona tu pronombre"
                   bg="rgba(255, 255, 255, 0.15)"
                   color="white"
                   _placeholder={{ color: "rgba(255, 255, 255, 0.7)" }}
                   _hover={{ bg: "rgba(255, 255, 255, 0.2)" }}
-                />
+                  sx={{
+                    // Estilo para cuando se despliega el menú
+                    option: {
+                      bg: "white",
+                      color: "black",
+                      _hover: {
+                        bg: "blue.500",
+                        color: "white"
+                      }
+                    }
+                  }}
+                >
+                  <option value="femenino">Femenino (ella)</option>
+                  <option value="masculino">Masculino (él)</option>
+                  <option value="neutro">Neutro (elle)</option>
+                  <option value="otro">Otro</option>
+                </Select>
               </FormControl>
               <FormControl isRequired>
                 <FormLabel color="white">Correo electrónico</FormLabel>

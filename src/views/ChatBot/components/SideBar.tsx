@@ -8,13 +8,10 @@ import {
 import { useState } from 'react'
 import { MdMenu } from "react-icons/md";
 import { FaUserCircle } from "react-icons/fa";
-import { IoMdSettings } from "react-icons/io";
-import ConfigModal from './ConfigModal' // Asegúrate de importar el modal de configuración
 import UserModal from './UserModal';
 
 const Sidebar = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-    const { isOpen: isOpenConfig, onOpen: onOpenConfig, onClose: onCloseConfig } = useDisclosure();
     const { isOpen: isOpenUser, onOpen: onOpenUser, onClose: onCloseUser } = useDisclosure();
 
     // Función para alternar el estado del sidebar
@@ -81,42 +78,6 @@ const Sidebar = () => {
                             bg: "gray.700",
                             transform: "scale(1.05)",
                         }}
-                        onClick={onOpenConfig} // Abre el modal de configuración al hacer clic
-                    >
-                        <Box position="absolute" left="4px">
-                            <IoMdSettings size={30} color="white" />
-                        </Box>
-                        <Box
-                            ml="38px" // Espacio fijo para el icono
-                            overflow="hidden"
-                            opacity={isSidebarOpen ? 1 : 0}
-                            transition="all 0.3s ease-in-out"
-                        >
-                            <Text
-                                fontSize="lg"
-                                color="white"
-                                whiteSpace={'nowrap'}
-                            >
-                                Configuración
-                            </Text>
-                        </Box>
-                    </Box>
-
-                    <Box
-                        w={"100%"}
-                        h={"40px"}
-                        display={"flex"}
-                        flexDirection={"row"}
-                        alignItems={"center"}
-                        pl={1}
-                        position="relative"
-                        transition="all 0.3s ease-in-out"
-                        borderRadius="full"
-                        cursor="pointer"
-                        _hover={{
-                            bg: "gray.700",
-                            transform: "scale(1.05)",
-                        }}
                         onClick={onOpenUser} // Abre el modal de usuario al hacer clic
                     >
                         <Box position="absolute" left="4px">
@@ -140,7 +101,6 @@ const Sidebar = () => {
                 </VStack>
             </VStack>
 
-            <ConfigModal isOpen={isOpenConfig} onClose={onCloseConfig} />
             <UserModal isOpen={isOpenUser} onClose={onCloseUser} username="Usuario" email="" />
         </Flex >
     )
