@@ -8,7 +8,7 @@ import {
 } from '@chakra-ui/react';
 import { IoMdSend } from "react-icons/io";
 import { getAuth } from "firebase/auth"; // Importación de Firebase Auth
-
+import { useNavigate } from 'react-router-dom';
 import AudioVisualizerCircle from './AudioVisualizerCircle';
 
 interface Message {
@@ -17,6 +17,7 @@ interface Message {
 }
 
 const ChatBot: React.FC = () => {
+    const navigate = useNavigate();
     const [msg, setMsg] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -51,7 +52,7 @@ const ChatBot: React.FC = () => {
                 })
                 .catch(error => {
                     console.error("Error:", error);
-                    setMessages(prev => [...prev, { text: "Error al obtener la respuesta del bot.", isUser: false }]);
+                    navigate('/error'); // Redirige a la pantalla de error
                 });
      
                 setMsg('');

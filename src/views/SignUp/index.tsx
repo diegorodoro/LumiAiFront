@@ -116,6 +116,7 @@ const SignUp = () => {
         duration: 4000,
         isClosable: true,
       });
+      navigate("/error");
     }
   };
   
@@ -184,6 +185,7 @@ const SignUp = () => {
         duration: 4000,
         isClosable: true,
       });
+      navigate("/error");
     }
   };
   return (
