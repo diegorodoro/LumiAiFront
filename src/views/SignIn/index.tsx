@@ -15,8 +15,7 @@ function SignIn() {
   const toast = useToast();
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    try {
+    e.preventDefault(); try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const token = await userCredential.user.getIdToken();
 
@@ -25,6 +24,7 @@ function SignIn() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        credentials: "include" // Permitir envío de cookies en solicitudes cross-origin
       }); console.log("Response completo de la API:", response); // Imprime el objeto Response completo
       const data = await response.json();
       console.log("Inicio de sesión exitoso, respuesta del backend:", data);
@@ -54,7 +54,7 @@ function SignIn() {
       } else {
         console.error("Error al iniciar sesión:", error);
       }
-      
+
       toast({
         title: "Error de inicio de sesión",
         description: errorMessage,
@@ -63,7 +63,7 @@ function SignIn() {
         isClosable: true,
         position: "top"
       });
-      
+
       navigate("/error");
     }
   };
@@ -78,6 +78,7 @@ function SignIn() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        credentials: "include" // Permitir envío de cookies en solicitudes cross-origin
       }); const data = await response.json();
       console.log("Inicio de sesión con Google exitoso, respuesta del backend:", data);
 
@@ -105,7 +106,7 @@ function SignIn() {
       } else {
         console.error("Error al iniciar sesión con Google:", error);
       }
-      
+
       toast({
         title: "Error de inicio de sesión",
         description: errorMessage,
@@ -114,7 +115,7 @@ function SignIn() {
         isClosable: true,
         position: "top"
       });
-      
+
       navigate("/error");
     }
   };

@@ -65,7 +65,7 @@ const SignUp = () => {
       });
       return;
     }
-    
+
     toast({
       title: "Procesando registro",
       description: "Por favor espera un momento...",
@@ -88,9 +88,7 @@ const SignUp = () => {
 
       // Guardar el token en el contexto de autenticación
       setToken(token);
-      console.log("Token guardado en el contexto:", token);
-
-      // 3. Enviar preferencias (incluyendo nombre) al backend Flask
+      console.log("Token guardado en el contexto:", token);      // 3. Enviar preferencias (incluyendo nombre) al backend Flask
       const preferencias: Preferencias = {
         nombre: name,
         tono: "amigable",
@@ -106,6 +104,7 @@ const SignUp = () => {
           "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(preferencias),
+        credentials: "include" // Permitir envío de cookies en solicitudes cross-origin
       });
 
       const data = await response.json();
@@ -114,7 +113,7 @@ const SignUp = () => {
         if (data && data.token) {
           setToken(data.token);
           console.log("Token actualizado desde la respuesta del servidor:", data.token);
-        }        toast({
+        } toast({
           title: "¡Registro exitoso!",
           description: "Tu cuenta ha sido creada. Redirigiendo a preguntas...",
           status: "success",
@@ -122,7 +121,8 @@ const SignUp = () => {
           isClosable: true,
           position: "top"
         });
-        navigate("/questions");      } else {
+        navigate("/questions");
+      } else {
         console.error("Error en preferencias:", data.error);
         toast({
           title: "Error al guardar preferencias",
@@ -136,7 +136,7 @@ const SignUp = () => {
 
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error("Error en el registro:", errorMsg);      toast({
+      console.error("Error en el registro:", errorMsg); toast({
         title: "Error al registrarse",
         description: errorMsg,
         status: "error",
@@ -157,7 +157,7 @@ const SignUp = () => {
         isClosable: true,
         position: "top"
       });
-      
+
       // 1. Registrar usuario con Google en Firebase Auth
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
@@ -170,9 +170,7 @@ const SignUp = () => {
       console.log("Token guardado en el contexto (Google):", token);
 
       // En registro con Google, usamos un pronombre neutro por defecto
-      const defaultPronombre = "neutro";
-
-      // 3. Enviar preferencias al backend
+      const defaultPronombre = "neutro";      // 3. Enviar preferencias al backend
       const preferencias: Preferencias = {
         nombre: fullName.trim(),
         tono: "amigable",
@@ -188,6 +186,7 @@ const SignUp = () => {
           "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(preferencias),
+        credentials: "include" // Permitir envío de cookies en solicitudes cross-origin
       });
 
       const data = await response.json();
@@ -196,7 +195,7 @@ const SignUp = () => {
         if (data && data.token) {
           setToken(data.token);
           console.log("Token actualizado desde la respuesta del servidor (Google):", data.token);
-        }        toast({
+        } toast({
           title: "¡Registro con Google exitoso!",
           description: "Tu cuenta ha sido creada. Redirigiendo a preguntas...",
           status: "success",
@@ -204,7 +203,8 @@ const SignUp = () => {
           isClosable: true,
           position: "top"
         });
-        navigate("/questions");} else {
+        navigate("/questions");
+      } else {
         console.error("Error en preferencias Google:", data.error);
         toast({
           title: "Error al guardar preferencias",
@@ -218,7 +218,7 @@ const SignUp = () => {
 
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error("Error con Google:", errorMsg);      toast({
+      console.error("Error con Google:", errorMsg); toast({
         title: "Error al registrarse con Google",
         description: errorMsg,
         status: "error",
