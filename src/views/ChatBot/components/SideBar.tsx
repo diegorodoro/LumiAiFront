@@ -101,7 +101,7 @@ const Sidebar = () => {
                 </VStack>
             </VStack>
 
-            <UserModal isOpen={isOpenUser} onClose={onCloseUser} username="Usuario" email="" />
+            <UserModal isOpen={isOpenUser} onClose={onCloseUser} />
         </Flex >
     )
 }

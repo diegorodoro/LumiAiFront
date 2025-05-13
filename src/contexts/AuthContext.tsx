@@ -7,15 +7,15 @@ interface AuthContextProps {
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [token, setTokenState] = useState<string | null>(null);
-
-    const setToken = (newToken: string | null) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {    // Intenta recuperar el token desde localStorage al iniciar
+    const [token, setTokenState] = useState<string | null>(() => {
+        return localStorage.getItem("token");
+    }); const setToken = (newToken: string | null) => {
         setTokenState(newToken);
         if (newToken) {
-            localStorage.setItem("authToken", newToken);
+            localStorage.setItem("token", newToken);
         } else {
-            localStorage.removeItem("authToken");
+            localStorage.removeItem("token");
         }
     };
 

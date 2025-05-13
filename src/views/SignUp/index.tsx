@@ -13,6 +13,7 @@ import {
   Select,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import { auth } from '../../firebaseConfig';
 import {
   createUserWithEmailAndPassword,
@@ -31,6 +32,7 @@ const SignUp = () => {
   const [pronombre, setPronombre] = useState('');
   const toast = useToast();
   const navigate = useNavigate();
+  const { setToken } = useAuth();
 
   interface Preferencias {
     nombre: string;
@@ -38,32 +40,55 @@ const SignUp = () => {
     intereses: string[];
     objetivo: string;
     pronombre: string;
-  }
-  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
+  }  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
+    if (password.length < 6) {
+      toast({
+        title: "Contraseña demasiado corta",
+        description: "La contraseña debe tener al menos 6 caracteres",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+        position: "top"
+      });
+      return;
+    }
+
     if (password !== confirmPassword) {
       toast({
         title: "Las contraseñas no coinciden",
         status: "error",
         duration: 3000,
         isClosable: true,
+        position: "top"
       });
       return;
     }
     
+    toast({
+      title: "Procesando registro",
+      description: "Por favor espera un momento...",
+      status: "info",
+      duration: 2000,
+      isClosable: true,
+      position: "top"
+    });
+
     try {
       // 1. Registrar usuario en Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      
+
       // Actualizar el perfil con el nombre
       await updateProfile(user, {
         displayName: name,
-      });
-
-      // 2. Obtener el token de autenticación
+      });      // 2. Obtener el token de autenticación
       const token = await user.getIdToken();
+
+      // Guardar el token en el contexto de autenticación
+      setToken(token);
+      console.log("Token guardado en el contexto:", token);
 
       // 3. Enviar preferencias (incluyendo nombre) al backend Flask
       const preferencias: Preferencias = {
@@ -84,18 +109,20 @@ const SignUp = () => {
       });
 
       const data = await response.json();
-      console.log("Respuesta del servidor:", data);
-
-      if (response.ok) {
-        toast({
-          title: "Registro exitoso",
-          description: "Redirigiendo a preguntas...",
+      console.log("Respuesta del servidor:", data); if (response.ok) {
+        // Si la respuesta del servidor incluye un token, lo actualizamos en el contexto
+        if (data && data.token) {
+          setToken(data.token);
+          console.log("Token actualizado desde la respuesta del servidor:", data.token);
+        }        toast({
+          title: "¡Registro exitoso!",
+          description: "Tu cuenta ha sido creada. Redirigiendo a preguntas...",
           status: "success",
           duration: 3000,
           isClosable: true,
+          position: "top"
         });
-        navigate("/questions");
-      } else {
+        navigate("/questions");      } else {
         console.error("Error en preferencias:", data.error);
         toast({
           title: "Error al guardar preferencias",
@@ -103,34 +130,45 @@ const SignUp = () => {
           status: "error",
           duration: 4000,
           isClosable: true,
+          position: "top"
         });
       }
 
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error("Error en el registro:", errorMsg);
-      toast({
+      console.error("Error en el registro:", errorMsg);      toast({
         title: "Error al registrarse",
         description: errorMsg,
         status: "error",
         duration: 4000,
         isClosable: true,
+        position: "top"
       });
       navigate("/error");
     }
   };
-  
   const handleGoogleSignUp = async () => {
     try {
+      toast({
+        title: "Conectando con Google",
+        description: "Espera un momento mientras procesamos tu solicitud...",
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+        position: "top"
+      });
+      
       // 1. Registrar usuario con Google en Firebase Auth
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      
-      // 2. Obtener el token de autenticación
+      const user = result.user;      // 2. Obtener el token de autenticación
       const token = await user.getIdToken();
       const fullName = user.displayName || '';
-      
+
+      // Guardar el token en el contexto de autenticación
+      setToken(token);
+      console.log("Token guardado en el contexto (Google):", token);
+
       // En registro con Google, usamos un pronombre neutro por defecto
       const defaultPronombre = "neutro";
 
@@ -153,18 +191,20 @@ const SignUp = () => {
       });
 
       const data = await response.json();
-      console.log("Respuesta del servidor (Google):", data);
-
-      if (response.ok) {
-        toast({
-          title: "Registro con Google exitoso",
-          description: "Redirigiendo a preguntas...",
+      console.log("Respuesta del servidor (Google):", data); if (response.ok) {
+        // Si la respuesta del servidor incluye un token, lo actualizamos en el contexto
+        if (data && data.token) {
+          setToken(data.token);
+          console.log("Token actualizado desde la respuesta del servidor (Google):", data.token);
+        }        toast({
+          title: "¡Registro con Google exitoso!",
+          description: "Tu cuenta ha sido creada. Redirigiendo a preguntas...",
           status: "success",
           duration: 3000,
           isClosable: true,
+          position: "top"
         });
-        navigate("/questions");
-      } else {
+        navigate("/questions");} else {
         console.error("Error en preferencias Google:", data.error);
         toast({
           title: "Error al guardar preferencias",
@@ -172,18 +212,19 @@ const SignUp = () => {
           status: "error",
           duration: 4000,
           isClosable: true,
+          position: "top"
         });
       }
 
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error("Error con Google:", errorMsg);
-      toast({
+      console.error("Error con Google:", errorMsg);      toast({
         title: "Error al registrarse con Google",
         description: errorMsg,
         status: "error",
         duration: 4000,
         isClosable: true,
+        position: "top"
       });
       navigate("/error");
     }

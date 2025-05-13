@@ -2,15 +2,17 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from '../../firebaseConfig';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { Box, Button, Heading, Input, VStack, HStack, Icon, Flex } from "@chakra-ui/react";
+import { Box, Button, Heading, Input, VStack, HStack, Icon, Flex, useToast } from "@chakra-ui/react";
 import { FcGoogle } from "react-icons/fc";
 import ShaderCanvas from "./component/backgroundEffect/ShaderCanvas";
+import { useAuth } from "../../contexts/AuthContext";
 
 function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-
+  const { setToken } = useAuth();
+  const toast = useToast();
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -23,24 +25,48 @@ function SignIn() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
-
-      console.log("Response completo de la API:", response); // Imprime el objeto Response completo
+      }); console.log("Response completo de la API:", response); // Imprime el objeto Response completo
       const data = await response.json();
       console.log("Inicio de sesión exitoso, respuesta del backend:", data);
+
+      // Guardar el token en el contexto de autenticación
+      if (data && data.token) {
+        setToken(data.token);
+        console.log("Token guardado en el contexto:", data.token);
+      }
+
+      toast({
+        title: "Inicio de sesión exitoso",
+        description: "¡Bienvenido de vuelta!",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "top"
+      });
 
       navigate("/chatbot"); // Redirige al usuario después de iniciar sesión
 
     } catch (error) {
+      let errorMessage = "Ha ocurrido un error al iniciar sesión";
       if (error instanceof Error) {
+        errorMessage = error.message;
         console.error("Error al iniciar sesión:", error.message);
       } else {
         console.error("Error al iniciar sesión:", error);
       }
+      
+      toast({
+        title: "Error de inicio de sesión",
+        description: errorMessage,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top"
+      });
+      
       navigate("/error");
     }
   };
-
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
     try {
@@ -52,18 +78,43 @@ function SignIn() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
-
-      const data = await response.json();
+      }); const data = await response.json();
       console.log("Inicio de sesión con Google exitoso, respuesta del backend:", data);
+
+      // Guardar el token en el contexto de autenticación
+      if (data && data.token) {
+        setToken(data.token);
+        console.log("Token guardado en el contexto:", data.token);
+      }
+
+      toast({
+        title: "Inicio de sesión exitoso",
+        description: "¡Bienvenido de vuelta! Has iniciado sesión con Google",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "top"
+      });
 
       navigate("/chatbot"); // Redirige al usuario después de iniciar sesión
     } catch (error) {
+      let errorMessage = "Ha ocurrido un error al iniciar sesión con Google";
       if (error instanceof Error) {
+        errorMessage = error.message;
         console.error("Error al iniciar sesión con Google:", error.message);
       } else {
         console.error("Error al iniciar sesión con Google:", error);
       }
+      
+      toast({
+        title: "Error de inicio de sesión",
+        description: errorMessage,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top"
+      });
+      
       navigate("/error");
     }
   };
