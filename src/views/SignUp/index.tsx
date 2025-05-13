@@ -94,38 +94,60 @@ const SignUp = () => {
         intereses: ["tecnología", "ciencia"],
         objetivo: "mejorar mi bienestar emocional",
         pronombre: pronombre,
-      };
-
-      const response = await fetch("https://lumiapi-luzj.onrender.com/api/preferencias", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify(preferencias),
-        credentials: "include" // Permitir envío de cookies en solicitudes cross-origin
-      });
-
-      const data = await response.json();
-      console.log("Respuesta del servidor:", data); if (response.ok) {
-        // Si la respuesta del servidor incluye un token, lo actualizamos en el contexto
-        if (data && data.token) {
-          setToken(data.token);
-          console.log("Token actualizado desde la respuesta del servidor:", data.token);
-        } toast({
-          title: "¡Registro exitoso!",
-          description: "Tu cuenta ha sido creada. Redirigiendo a preguntas...",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-          position: "top"
+      }; console.log("Enviando solicitud a /api/preferencias con token:", token.substring(0, 20) + "...");
+      console.log("Preferencias a enviar:", preferencias);
+      console.log("Cookies actuales:", document.cookie);
+      let responsePref;
+      let dataPref;
+      try {
+        responsePref = await fetch("https://lumiapi-luzj.onrender.com/api/preferencias", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify(preferencias),
+          credentials: "include" // Permitir envío de cookies en solicitudes cross-origin
         });
-        navigate("/questions");
-      } else {
-        console.error("Error en preferencias:", data.error);
+
+        console.log("Headers de la respuesta:", Object.fromEntries([...responsePref.headers.entries()]));
+        console.log("Estado de la respuesta:", responsePref.status, responsePref.statusText);
+
+        dataPref = await responsePref.json();
+        console.log("Respuesta del servidor:", dataPref);
+
+        if (responsePref.ok) {
+          // Si la respuesta del servidor incluye un token, lo actualizamos en el contexto
+          if (dataPref && dataPref.token) {
+            setToken(dataPref.token);
+            console.log("Token actualizado desde la respuesta del servidor:", dataPref.token);
+          }
+          toast({
+            title: "¡Registro exitoso!",
+            description: "Tu cuenta ha sido creada. Redirigiendo a preguntas...",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+            position: "top"
+          });
+          navigate("/questions");
+        } else {
+          console.error("Error en preferencias:", dataPref.error);
+          toast({
+            title: "Error al guardar preferencias",
+            description: dataPref.error || "Ocurrió un error inesperado",
+            status: "error",
+            duration: 4000,
+            isClosable: true,
+            position: "top"
+          });
+        }
+      } catch (fetchError) {
+        console.error("Error en la solicitud fetch:", fetchError);
+        console.log("Error CORS o de red detectado");
         toast({
-          title: "Error al guardar preferencias",
-          description: data.error || "Ocurrió un error inesperado",
+          title: "Error de conexión",
+          description: "No se pudo conectar con el servidor. Verifica tu conexión a internet.",
           status: "error",
           duration: 4000,
           isClosable: true,
@@ -174,38 +196,58 @@ const SignUp = () => {
         intereses: ["tecnología", "ciencia"],
         objetivo: "mejorar mi bienestar emocional",
         pronombre: defaultPronombre,
-      };
-
-      const response = await fetch("https://lumiapi-luzj.onrender.com/api/preferencias", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify(preferencias),
-        credentials: "include" // Permitir envío de cookies en solicitudes cross-origin
-      });
-
-      const data = await response.json();
-      console.log("Respuesta del servidor (Google):", data); if (response.ok) {
-        // Si la respuesta del servidor incluye un token, lo actualizamos en el contexto
-        if (data && data.token) {
-          setToken(data.token);
-          console.log("Token actualizado desde la respuesta del servidor (Google):", data.token);
-        } toast({
-          title: "¡Registro con Google exitoso!",
-          description: "Tu cuenta ha sido creada. Redirigiendo a preguntas...",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-          position: "top"
+      }; console.log("Enviando solicitud a /api/preferencias (Google) con token:", token.substring(0, 20) + "...");
+      console.log("Preferencias a enviar (Google):", preferencias);
+      console.log("Cookies actuales en registro Google:", document.cookie);
+      try {
+        const response = await fetch("https://lumiapi-luzj.onrender.com/api/preferencias", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify(preferencias),
+          credentials: "include" // Permitir envío de cookies en solicitudes cross-origin
         });
-        navigate("/questions");
-      } else {
-        console.error("Error en preferencias Google:", data.error);
+
+        console.log("Headers de la respuesta (Google):", Object.fromEntries([...response.headers.entries()]));
+        console.log("Estado de la respuesta (Google):", response.status, response.statusText);
+
+        const data = await response.json();
+        console.log("Respuesta del servidor (Google):", data);
+
+        if (response.ok) {
+          // Si la respuesta del servidor incluye un token, lo actualizamos en el contexto
+          if (data && data.token) {
+            setToken(data.token);
+            console.log("Token actualizado desde la respuesta del servidor (Google):", data.token);
+          }
+          toast({
+            title: "¡Registro con Google exitoso!",
+            description: "Tu cuenta ha sido creada. Redirigiendo a preguntas...",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+            position: "top"
+          });
+          navigate("/questions");
+        } else {
+          console.error("Error en preferencias Google:", data.error);
+          toast({
+            title: "Error al guardar preferencias",
+            description: data.error || "Ocurrió un error inesperado",
+            status: "error",
+            duration: 4000,
+            isClosable: true,
+            position: "top"
+          });
+        }
+      } catch (fetchError) {
+        console.error("Error en la solicitud fetch (Google):", fetchError);
+        console.log("Error CORS o de red detectado en registro con Google");
         toast({
-          title: "Error al guardar preferencias",
-          description: data.error || "Ocurrió un error inesperado",
+          title: "Error de conexión",
+          description: "No se pudo conectar con el servidor durante el registro con Google.",
           status: "error",
           duration: 4000,
           isClosable: true,

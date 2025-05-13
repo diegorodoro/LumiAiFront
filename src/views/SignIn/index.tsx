@@ -17,22 +17,36 @@ function SignIn() {
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const token = await userCredential.user.getIdToken(); const response = await fetch("https://lumiapi-luzj.onrender.com/protected", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: "include" // Permitir envío de cookies en solicitudes cross-origin      
-      });
-      console.log("Response completo de la API:", response); // Imprime el objeto Response completo
-      const data = await response.json();
-      console.log("Inicio de sesión exitoso, respuesta del backend:", data);
+      const token = await userCredential.user.getIdToken();
+
+      console.log("Iniciando sesión con token:", token.substring(0, 20) + "...");
+      console.log("Cookies actuales antes de la solicitud:", document.cookie);
+      let responseData;
+      try {
+        const response = await fetch("https://lumiapi-luzj.onrender.com/protected", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include" // Permitir envío de cookies en solicitudes cross-origin      
+        });
+
+        console.log("Headers de respuesta:", Object.fromEntries([...response.headers.entries()]));
+        console.log("Estado de la respuesta:", response.status, response.statusText);
+
+        responseData = await response.json();
+        console.log("Inicio de sesión exitoso, respuesta del backend:", responseData);
+      } catch (fetchError) {
+        console.error("Error en la solicitud fetch (login):", fetchError);
+        console.log("Error CORS o de red detectado en inicio de sesión");
+        throw fetchError; // Re-lanzar el error para que se maneje en el bloque catch externo
+      }
 
       // Guardar el token en el contexto de autenticación
-      if (data && data.token) {
-        setToken(data.token);
+      if (responseData && responseData.token) {
+        setToken(responseData.token);
         console.log("%c TOKEN GUARDADO EN CONTEXTO (SIGNIN): ", "background: #222; color: #bada55; font-size: 16px");
-        console.log(data.token);
+        console.log(responseData.token);
       }
 
       toast({
@@ -66,25 +80,39 @@ function SignIn() {
 
       navigate("/error");
     }
-  };
-  const handleGoogleSignIn = async () => {
+  }; const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
       const token = await result.user.getIdToken();
 
-      const response = await fetch("https://lumiapi-luzj.onrender.com/protected", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: "include" // Permitir envío de cookies en solicitudes cross-origin
-      }); const data = await response.json();
-      console.log("Inicio de sesión con Google exitoso, respuesta del backend:", data);      // Guardar el token en el contexto de autenticación
-      if (data && data.token) {
-        setToken(data.token);
+      console.log("Iniciando sesión con Google, token:", token.substring(0, 20) + "...");
+      console.log("Cookies actuales antes de la solicitud Google:", document.cookie);
+
+      let responseData;
+      try {
+        const response = await fetch("https://lumiapi-luzj.onrender.com/protected", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include" // Permitir envío de cookies en solicitudes cross-origin
+        });
+
+        console.log("Headers de respuesta Google:", Object.fromEntries([...response.headers.entries()]));
+        console.log("Estado de la respuesta Google:", response.status, response.statusText);
+
+        responseData = await response.json();
+        console.log("Inicio de sesión con Google exitoso, respuesta del backend:", responseData);
+      } catch (fetchError) {
+        console.error("Error en la solicitud fetch (login Google):", fetchError);
+        console.log("Error CORS o de red detectado en inicio de sesión con Google");
+        throw fetchError;
+      }      // Guardar el token en el contexto de autenticación
+      if (responseData && responseData.token) {
+        setToken(responseData.token);
         console.log("%c TOKEN GUARDADO EN CONTEXTO (SIGNIN GOOGLE): ", "background: #222; color: #bada55; font-size: 16px");
-        console.log(data.token);
+        console.log(responseData.token);
       }
 
       toast({
