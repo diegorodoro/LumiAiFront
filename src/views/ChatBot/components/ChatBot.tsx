@@ -9,7 +9,6 @@ import {
 import { IoMdSend } from "react-icons/io";
 import { getAuth } from "firebase/auth"; // Importación de Firebase Auth
 import { useNavigate } from 'react-router-dom';
-import AudioVisualizerCircle from './AudioVisualizerCircle';
 
 interface Message {
     text: string;
@@ -87,10 +86,6 @@ const ChatBot: React.FC = () => {
                 >
                     Lumi AI
                 </Text>
-            </Box>
-
-            <Box display={"flex"} justifyContent={"center"} alignItems={"center"} w={"100%"}>
-                <AudioVisualizerCircle prompt={messages.length > 0 ? messages[messages.length - 1].text : ''} />
             </Box>
 
             <Box
