@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Flex, Button, Image, HStack, Text } from '@chakra-ui/react';
+import { Box, Flex, Button, HStack, Text } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 
 const Header: React.FC = () => {
@@ -82,7 +82,12 @@ const Header: React.FC = () => {
                 pt={3}
             >
                 {/* Logo on the left */}
-                <Image src="/logo.png" alt="LumiAI Logo" height="40px" />
+                <Text
+                    color={'white'}
+                    fontSize="lg"
+                >
+                    Lumi AI
+                </Text>
 
                 {/* Navigation in center (absolute positioned) */}
                 <HStack
