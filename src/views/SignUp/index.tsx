@@ -11,7 +11,6 @@ import {
   Flex,
   Icon,
   Select,
-  Text,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -31,8 +30,6 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [pronombre, setPronombre] = useState('');
-  const [fetchResponse, setFetchResponse] = useState('');
-  const [tokenStatus, setTokenStatus] = useState('');
   const toast = useToast();
   const navigate = useNavigate();
   const { setToken } = useAuth();
@@ -43,9 +40,7 @@ const SignUp = () => {
     intereses: string[];
     objetivo: string;
     pronombre: string;
-  }
-
-  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
+  }  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (password.length < 6) {
@@ -71,6 +66,15 @@ const SignUp = () => {
       return;
     }
 
+    toast({
+      title: "Procesando registro",
+      description: "Por favor espera un momento...",
+      status: "info",
+      duration: 2000,
+      isClosable: true,
+      position: "top"
+    });
+
     try {
       // 1. Registrar usuario en Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -79,18 +83,12 @@ const SignUp = () => {
       // Actualizar el perfil con el nombre
       await updateProfile(user, {
         displayName: name,
-      });
-
-      // 2. Obtener el token de autenticación
+      });      // 2. Obtener el token de autenticación
       const token = await user.getIdToken();
 
       // Guardar el token en el contexto de autenticación
       setToken(token);
-      setTokenStatus(`TOKEN GUARDADO EN CONTEXTO: ${token.substring(0, 20)}...`);
-      console.log("%c TOKEN GUARDADO EN CONTEXTO: ", "background: #222; color: #bada55; font-size: 16px");
-      console.log(token);
-
-      // 3. Enviar preferencias (incluyendo nombre) al backend Flask
+      console.log("Token guardado en el contexto:", token);      // 3. Enviar preferencias (incluyendo nombre) al backend Flask
       const preferencias: Preferencias = {
         nombre: name,
         tono: "amigable",
@@ -99,51 +97,36 @@ const SignUp = () => {
         pronombre: pronombre,
       };
 
-      try {
-        const responsePref = await fetch("https://lumiapi-luzj.onrender.com/api/preferencias", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-          body: JSON.stringify(preferencias),
-          credentials: "include" // Permitir envío de cookies en solicitudes cross-origin
+      const response = await fetch("https://lumiapi-luzj.onrender.com/api/preferencias", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(preferencias),
+        credentials: "include" // Permitir envío de cookies en solicitudes cross-origin
+      });
+
+      const data = await response.json();
+      console.log("Respuesta del servidor:", data); if (response.ok) {
+        // Si la respuesta del servidor incluye un token, lo actualizamos en el contexto
+        if (data && data.token) {
+          setToken(data.token);
+          console.log("Token actualizado desde la respuesta del servidor:", data.token);
+        } toast({
+          title: "¡Registro exitoso!",
+          description: "Tu cuenta ha sido creada. Redirigiendo a preguntas...",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+          position: "top"
         });
-
-        const dataPref = await responsePref.json();
-        setFetchResponse(JSON.stringify(dataPref, null, 2));
-
-        if (responsePref.ok) {
-          // Si la respuesta del servidor incluye un token, lo actualizamos en el contexto
-          if (dataPref && dataPref.token) {
-            setToken(dataPref.token);
-            setTokenStatus(`Token actualizado desde la respuesta del servidor: ${dataPref.token.substring(0, 20)}...`);
-          }
-          toast({
-            title: "¡Registro exitoso!",
-            description: "Tu cuenta ha sido creada. Redirigiendo a preguntas...",
-            status: "success",
-            duration: 3000,
-            isClosable: true,
-            position: "top"
-          });
-          // Se comenta la navegación para poder ver la respuesta
-          // navigate("/questions");
-        } else {
-          toast({
-            title: "Error al guardar preferencias",
-            description: dataPref.error || "Ocurrió un error inesperado",
-            status: "error",
-            duration: 4000,
-            isClosable: true,
-            position: "top"
-          });
-        }
-      } catch (fetchError) {
-        setFetchResponse(`Error en la solicitud fetch: ${String(fetchError)}`);
+        navigate("/questions");
+      } else {
+        console.error("Error en preferencias:", data.error);
         toast({
-          title: "Error de conexión",
-          description: "No se pudo conectar con el servidor. Verifica tu conexión a internet.",
+          title: "Error al guardar preferencias",
+          description: data.error || "Ocurrió un error inesperado",
           status: "error",
           duration: 4000,
           isClosable: true,
@@ -153,8 +136,7 @@ const SignUp = () => {
 
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      setFetchResponse(`Error en el registro: ${errorMsg}`);
-      toast({
+      console.error("Error en el registro:", errorMsg); toast({
         title: "Error al registrarse",
         description: errorMsg,
         status: "error",
@@ -162,30 +144,33 @@ const SignUp = () => {
         isClosable: true,
         position: "top"
       });
+      navigate("/error");
     }
   };
-
   const handleGoogleSignUp = async () => {
     try {
+      toast({
+        title: "Conectando con Google",
+        description: "Espera un momento mientras procesamos tu solicitud...",
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+        position: "top"
+      });
+
       // 1. Registrar usuario con Google en Firebase Auth
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      // 2. Obtener el token de autenticación
+      const user = result.user;      // 2. Obtener el token de autenticación
       const token = await user.getIdToken();
       const fullName = user.displayName || '';
 
       // Guardar el token en el contexto de autenticación
       setToken(token);
-      setTokenStatus(`TOKEN GUARDADO EN CONTEXTO (GOOGLE): ${token.substring(0, 20)}...`);
-      console.log("%c TOKEN GUARDADO EN CONTEXTO (GOOGLE): ", "background: #222; color: #bada55; font-size: 16px");
-      console.log(token);
+      console.log("Token guardado en el contexto (Google):", token);
 
       // En registro con Google, usamos un pronombre neutro por defecto
-      const defaultPronombre = "neutro";
-
-      // 3. Enviar preferencias al backend
+      const defaultPronombre = "neutro";      // 3. Enviar preferencias al backend
       const preferencias: Preferencias = {
         nombre: fullName.trim(),
         tono: "amigable",
@@ -194,51 +179,36 @@ const SignUp = () => {
         pronombre: defaultPronombre,
       };
 
-      try {
-        const response = await fetch("https://lumiapi-luzj.onrender.com/api/preferencias", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-          body: JSON.stringify(preferencias),
-          credentials: "include" // Permitir envío de cookies en solicitudes cross-origin
+      const response = await fetch("https://lumiapi-luzj.onrender.com/api/preferencias", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(preferencias),
+        credentials: "include" // Permitir envío de cookies en solicitudes cross-origin
+      });
+
+      const data = await response.json();
+      console.log("Respuesta del servidor (Google):", data); if (response.ok) {
+        // Si la respuesta del servidor incluye un token, lo actualizamos en el contexto
+        if (data && data.token) {
+          setToken(data.token);
+          console.log("Token actualizado desde la respuesta del servidor (Google):", data.token);
+        } toast({
+          title: "¡Registro con Google exitoso!",
+          description: "Tu cuenta ha sido creada. Redirigiendo a preguntas...",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+          position: "top"
         });
-
-        const data = await response.json();
-        setFetchResponse(JSON.stringify(data, null, 2));
-
-        if (response.ok) {
-          // Si la respuesta del servidor incluye un token, lo actualizamos en el contexto
-          if (data && data.token) {
-            setToken(data.token);
-            setTokenStatus(`Token actualizado desde la respuesta del servidor (Google): ${data.token.substring(0, 20)}...`);
-          }
-          toast({
-            title: "¡Registro con Google exitoso!",
-            description: "Tu cuenta ha sido creada. Redirigiendo a preguntas...",
-            status: "success",
-            duration: 3000,
-            isClosable: true,
-            position: "top"
-          });
-          // Se comenta la navegación para poder ver la respuesta
-          // navigate("/questions");
-        } else {
-          toast({
-            title: "Error al guardar preferencias",
-            description: data.error || "Ocurrió un error inesperado",
-            status: "error",
-            duration: 4000,
-            isClosable: true,
-            position: "top"
-          });
-        }
-      } catch (fetchError) {
-        setFetchResponse(`Error en la solicitud fetch (Google): ${String(fetchError)}`);
+        navigate("/questions");
+      } else {
+        console.error("Error en preferencias Google:", data.error);
         toast({
-          title: "Error de conexión",
-          description: "No se pudo conectar con el servidor durante el registro con Google.",
+          title: "Error al guardar preferencias",
+          description: data.error || "Ocurrió un error inesperado",
           status: "error",
           duration: 4000,
           isClosable: true,
@@ -248,8 +218,7 @@ const SignUp = () => {
 
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      setFetchResponse(`Error con Google: ${errorMsg}`);
-      toast({
+      console.error("Error con Google:", errorMsg); toast({
         title: "Error al registrarse con Google",
         description: errorMsg,
         status: "error",
@@ -257,9 +226,9 @@ const SignUp = () => {
         isClosable: true,
         position: "top"
       });
+      navigate("/error");
     }
   };
-
   return (
     <Box position="relative" h="100vh" w="100%" overflow="hidden">
       {/* Background ShaderCanvas */}
@@ -288,20 +257,19 @@ const SignUp = () => {
         >
           <Heading mb={6} textAlign="center" color="white">Crear cuenta</Heading>
           <form onSubmit={handleSignUp}>
-            <VStack spacing={4}>
-              <FormControl isRequired>
-                <FormLabel color="white">Nombre completo</FormLabel>
-                <Input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Ingresa tu nombre"
-                  bg="rgba(255, 255, 255, 0.15)"
-                  color="white"
-                  _placeholder={{ color: "rgba(255, 255, 255, 0.7)" }}
-                  _hover={{ bg: "rgba(255, 255, 255, 0.2)" }}
-                />
-              </FormControl>
+            <VStack spacing={4}>              <FormControl isRequired>
+              <FormLabel color="white">Nombre completo</FormLabel>
+              <Input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Ingresa tu nombre"
+                bg="rgba(255, 255, 255, 0.15)"
+                color="white"
+                _placeholder={{ color: "rgba(255, 255, 255, 0.7)" }}
+                _hover={{ bg: "rgba(255, 255, 255, 0.2)" }}
+              />
+            </FormControl>
               <FormControl isRequired>
                 <FormLabel color="white">Pronombre preferido</FormLabel>
                 <Select
@@ -313,6 +281,7 @@ const SignUp = () => {
                   _placeholder={{ color: "rgba(255, 255, 255, 0.7)" }}
                   _hover={{ bg: "rgba(255, 255, 255, 0.2)" }}
                   sx={{
+                    // Estilo para cuando se despliega el menú
                     option: {
                       bg: "white",
                       color: "black",
@@ -404,24 +373,6 @@ const SignUp = () => {
           >
             ¿Ya tienes cuenta? Inicia sesión aquí
           </Button>
-
-          {/* Área para mostrar el estado del token */}
-          {tokenStatus && (
-            <Box mt={4} p={3} bg="rgba(0, 0, 0, 0.5)" borderRadius="md">
-              <Text color="green.300" fontSize="sm" fontFamily="monospace" overflowX="auto" whiteSpace="pre-wrap">
-                {tokenStatus}
-              </Text>
-            </Box>
-          )}
-
-          {/* Área para mostrar la respuesta del fetch */}
-          {fetchResponse && (
-            <Box mt={4} p={3} bg="rgba(0, 0, 0, 0.5)" borderRadius="md" maxH="200px" overflowY="auto">
-              <Text color="cyan.300" fontSize="sm" fontFamily="monospace" whiteSpace="pre-wrap">
-                {fetchResponse}
-              </Text>
-            </Box>
-          )}
         </Box>
       </Flex>
     </Box>
