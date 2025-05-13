@@ -37,6 +37,7 @@ function SignIn() {
       } else {
         console.error("Error al iniciar sesión:", error);
       }
+      navigate("/error");
     }
   };
 
@@ -63,6 +64,7 @@ function SignIn() {
       } else {
         console.error("Error al iniciar sesión con Google:", error);
       }
+      navigate("/error");
     }
   };
   return (
