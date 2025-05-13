@@ -17,22 +17,22 @@ function SignIn() {
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const token = await userCredential.user.getIdToken();
-
-      const response = await fetch("https://lumiapi-luzj.onrender.com/protected", {
+      const token = await userCredential.user.getIdToken(); const response = await fetch("https://lumiapi-luzj.onrender.com/protected", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        credentials: "include" // Permitir envío de cookies en solicitudes cross-origin
-      }); console.log("Response completo de la API:", response); // Imprime el objeto Response completo
+        credentials: "include" // Permitir envío de cookies en solicitudes cross-origin      
+      });
+      console.log("Response completo de la API:", response); // Imprime el objeto Response completo
       const data = await response.json();
       console.log("Inicio de sesión exitoso, respuesta del backend:", data);
 
       // Guardar el token en el contexto de autenticación
       if (data && data.token) {
         setToken(data.token);
-        console.log("Token guardado en el contexto:", data.token);
+        console.log("%c TOKEN GUARDADO EN CONTEXTO (SIGNIN): ", "background: #222; color: #bada55; font-size: 16px");
+        console.log(data.token);
       }
 
       toast({
@@ -80,12 +80,11 @@ function SignIn() {
         },
         credentials: "include" // Permitir envío de cookies en solicitudes cross-origin
       }); const data = await response.json();
-      console.log("Inicio de sesión con Google exitoso, respuesta del backend:", data);
-
-      // Guardar el token en el contexto de autenticación
+      console.log("Inicio de sesión con Google exitoso, respuesta del backend:", data);      // Guardar el token en el contexto de autenticación
       if (data && data.token) {
         setToken(data.token);
-        console.log("Token guardado en el contexto:", data.token);
+        console.log("%c TOKEN GUARDADO EN CONTEXTO (SIGNIN GOOGLE): ", "background: #222; color: #bada55; font-size: 16px");
+        console.log(data.token);
       }
 
       toast({

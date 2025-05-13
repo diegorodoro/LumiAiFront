@@ -84,11 +84,10 @@ const SignUp = () => {
       await updateProfile(user, {
         displayName: name,
       });      // 2. Obtener el token de autenticación
-      const token = await user.getIdToken();
-
-      // Guardar el token en el contexto de autenticación
+      const token = await user.getIdToken();      // Guardar el token en el contexto de autenticación
       setToken(token);
-      console.log("Token guardado en el contexto:", token);      // 3. Enviar preferencias (incluyendo nombre) al backend Flask
+      console.log("%c TOKEN GUARDADO EN CONTEXTO: ", "background: #222; color: #bada55; font-size: 16px");
+      console.log(token);// 3. Enviar preferencias (incluyendo nombre) al backend Flask
       const preferencias: Preferencias = {
         nombre: name,
         tono: "amigable",
@@ -144,7 +143,6 @@ const SignUp = () => {
         isClosable: true,
         position: "top"
       });
-      navigate("/error");
     }
   };
   const handleGoogleSignUp = async () => {
@@ -163,11 +161,10 @@ const SignUp = () => {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;      // 2. Obtener el token de autenticación
       const token = await user.getIdToken();
-      const fullName = user.displayName || '';
-
-      // Guardar el token en el contexto de autenticación
+      const fullName = user.displayName || '';      // Guardar el token en el contexto de autenticación
       setToken(token);
-      console.log("Token guardado en el contexto (Google):", token);
+      console.log("%c TOKEN GUARDADO EN CONTEXTO (GOOGLE): ", "background: #222; color: #bada55; font-size: 16px");
+      console.log(token);
 
       // En registro con Google, usamos un pronombre neutro por defecto
       const defaultPronombre = "neutro";      // 3. Enviar preferencias al backend
